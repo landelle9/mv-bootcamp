@@ -1,12 +1,12 @@
 class Dock {
   location;
-  scootersAvailable;
+  numScootersAvailable;
 
-  constructor(scootersAvailable) {
-    if (!scootersAvailable) {
-      throw new Error("All scooters occupied");
+  constructor(numScootersAvailable) {
+    if (numScootersAvailable < 0) {
+      throw new Error("numScootersAvailable must be positive");
     }
-    this.scootersAvailable = scootersAvailable;
+    this.numScootersAvailable = numScootersAvailable;
   }
 
   dockUnavailable() {
