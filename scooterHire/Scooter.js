@@ -1,4 +1,6 @@
 class Scooter {
+  // Properties - variables that sit on an object
+
   id;
   pricepermin = 0.25;
   unlockFee = 1;
@@ -21,6 +23,7 @@ class Scooter {
 
   /*
   Mark the scooter as broken 
+  Methods are functions that sit on an object
   
   */
   reportBroken() {
