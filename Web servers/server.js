@@ -1,5 +1,8 @@
 // Convenience - assign express method to app variables
 const express = require("express");
+const Handlebars = require('handlebars')
+const expressHandlebars = require('express-handlebars')
+const {allowInsecurePrototypeAccess} = require('@handlebars/allow-prototype-access')
 
 const Restaurant = require("./models/Restaurant");
 
@@ -12,6 +15,13 @@ const sequelizeConnect = require("./sequelize-connect");
 
 const app = express();
 const port = 3000;
+
+// setup our templating engine
+const handlebars = expressHandlebars({
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
+})
+app.engine('handlebars', handlebars)
+app.set('view engine', 'handlebars')
 
 app.use(express.static("public"));
 
@@ -41,7 +51,8 @@ app.get("/flipcoin", (request, response) => {
 //READ
 app.get("/restaurants", async (request, response) => {
 	const restaurants = await Restaurant.findAll();
-	response.send(restaurants);
+	//response.send(restaurants);
+	response.render("allRestaurantsTemplate", restaurants)
 });
 
 app.get("/restaurants/:id", async (request, response) => {
