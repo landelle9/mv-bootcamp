@@ -5,9 +5,7 @@ class Menu extends Model {}
 
 Menu.init(
   {
-    name: DataTypes.STRING,
-    image: DataTypes.STRING,
-  },
+    title: DataTypes.STRING  },
   {
     sequelize: dbConnection,
     timestamps: false,

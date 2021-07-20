@@ -1,52 +1,77 @@
-const { Restaurant } = require("./Models/Restaurant");
-const { Menu } = require("./Models/Menu");
-const { MenuItem } = require("./Models/MenuItem");
-const fsp = require("fs").promises; // Node.js file system module with promises
-const { sequelize } = require("./sequelize-connect");
-
+const sqlite3 = require('sqlite3').verbose();
+const fsp = require('fs').promises; // Node.js file system module with promises
 /**
- * Load the data from the file and
- * insert it in the database
- */
-async function loadAndInsert() {
-	const restaurantFile = "./restaurants.json"; //asynchronously reads the contents of the restaurant data file
-	const buffer = await fsp.readFile(restaurantFile); // wait for the restaurant data file to be read
-	const restaurantsArray = JSON.parse(String(buffer)); //converts the read file data into JS objects (arrays)
+This code illustrates how to load JSON data into an array.
+*/
+async function loadAndPrint() {
+    const db = new sqlite3.Database('./restaurants.sqlite');
+    // wait for the json file to be read
+    try {
+        const rawData = await fsp.readFile('./restaurants.json');
+        // convert the file data into JS objects (arrays)
+        const restaurantsArray = (JSON.parse(String(rawData)));
 
-	// recreate the database tables
-	await sequelize.sync({ force: true });
 
-	let menuCounter = 1;
+        db.serialize(function () {
 
-	for (let i = 0; i < restaurantsArray.length; i++) {
-		const currentRestaurant = restaurantsArray[i];
+            let menuId = 0
+            //this type of for loop allows for easy reference to both the index, and the element itself
+            for (const [restaurantIndex, restaurant] of restaurantsArray.entries()) {
+                let stmt
+                
+                try {
+                    stmt = db.prepare('INSERT INTO Restaurants (name, image) VALUES (?, ?)')
+                    stmt.run(restaurant.name, restaurant.image)
+                    
+                } finally {
+                    stmt.finalize();
+                }
 
-		await Restaurant.create({
-			name: currentRestaurant.name,
-			image: currentRestaurant.image,
-		});
+                restaurant.menus.forEach(menu => {
+                    menuId++
 
-		for (let j = 0; j < currentRestaurant.menus.length; j++) {
-			const currentMenu = currentRestaurant.menus[j];
+                    try {
+                        stmt = db.prepare('INSERT INTO Menus (title, restaurantId) VALUES (?, ?)')
+                        stmt.run(menu.title, restaurantIndex+1)
+                        
+                    } finally {
+                        stmt.finalize();
+                    }
 
-			await Menu.create({ title: currentMenu.title, restaurant_id: i + 1 });
+                    menu.items.forEach(item => {
 
-			for (let k = 0; k < currentMenu.items.length; k++) {
-				const currentMenuItem = currentMenu.items[k];
+                        try {
+                            stmt = db.prepare('INSERT INTO MenuItems (name, price, menuId) VALUES (?, ?, ?)')
+                            stmt.run(item.name, item.price, menuId)
+                            
+                        } finally {
+                            stmt.finalize();
+                        }
+                    });
+                });
+            };
 
-				await MenuItem.create({
-					name: currentMenuItem.name,
-					price: currentMenuItem.price,
-					menu_id: menuCounter,
-				});
-			}
+            //foreach loops make code more readable, in my opinion. also i think they're cool :)
+            // restaurantsArray.forEach(restaurant => {
+            //     console.log("\n"+restaurant.name)
 
-			menuCounter++;
-		}
-	}
+            //     restaurant.menus.forEach(menu => {
+            //         console.log("\n   ", menu.title);
+
+            //         menu.items.forEach(item => {
+            //             console.log("       ", item.name);
+            //         });
+
+            //     });
+
+            // })
+
+        });
+    } catch (error) {
+        // if we get here, our file read has filed
+        console.error('problem reading the file'+ error);
+    }
 }
+// main flow
 
-module.export = loadAndInsert;
-
-// local testing
-loadAndInsert();
+module.exports = loadAndPrint()
