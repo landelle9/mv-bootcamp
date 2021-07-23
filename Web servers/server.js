@@ -1,8 +1,12 @@
 // Convenience - assign express method to app variables
+// Each variable 'requires' individual files. Extracts files into this one, so it is accessible.
+
 const express = require("express");
-const Handlebars = require('handlebars')
-const expressHandlebars = require('express-handlebars')
-const {allowInsecurePrototypeAccess} = require('@handlebars/allow-prototype-access')
+const Handlebars = require("handlebars");
+const expressHandlebars = require("express-handlebars");
+const {
+	allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
 
 const Restaurant = require("./models/Restaurant");
 
@@ -13,15 +17,15 @@ const MenuItem = require("./Models/MenuItem");
 // connects and creates database
 const sequelizeConnect = require("./sequelize-connect");
 
-const app = express();
-const port = 3000;
+const app = express(); // Creates an express application
+const port = 3000; // Our localhost:3000.
 
 // setup our templating engine
 const handlebars = expressHandlebars({
-    handlebars: allowInsecurePrototypeAccess(Handlebars)
-})
-app.engine('handlebars', handlebars)
-app.set('view engine', 'handlebars')
+	handlebars: allowInsecurePrototypeAccess(Handlebars),
+});
+app.engine("handlebars", handlebars);
+app.set("view engine", "handlebars");
 
 app.use(express.static("public"));
 
@@ -31,6 +35,7 @@ app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);
 });
 
+// Shows the relationships between the different classes
 Restaurant.hasMany(Menu);
 Menu.belongsTo(Restaurant);
 Menu.hasMany(MenuItem);
@@ -48,24 +53,31 @@ app.get("/flipcoin", (request, response) => {
 		response.send("tails");
 	}
 });
-//READ
+//READ - Gets all the restaurants
 app.get("/restaurants", async (request, response) => {
 	const restaurants = await Restaurant.findAll();
 	//response.send(restaurants);
-	response.render("allRestaurantsTemplate", restaurants)
+	console.log(restaurants);
+	response.render("allRestaurantsTemplate", { restaurants });
 });
 
 app.get("/restaurants/:id", async (request, response) => {
 	const restaurantid = request.params.id;
 	const restaurant = await Restaurant.findByPk(restaurantid, {
-		include: [Menu], // This ensures that when searching for restaurants, that menu is joined/associated with it.
+		include: [
+			{
+				model: Menu,
+				include: [MenuItem], // This ensures both the Menu & Menuitems show on the website.
+			},
+		], // This ensures that when searching for restaurants, that menu is joined/associated with it.
 	});
 	console.log(restaurant);
 
 	if (restaurant === null) {
-		response.sendStatus(404);
+		response.sendStatus(404); // If there is no response, an error of 404 will be sent back.
 	} else {
-		response.send(restaurant);
+		response.render("restaurantTemplate", { restaurant });
+		// response.send(restaurant);
 	}
 });
 
@@ -82,6 +94,8 @@ app.post("/restaurants", async (request, response) => {
 	response.sendStatus(201);
 	response.send("Restaurant created");
 });
+
+// If there is a restaurant created, a code of 200 and above will be sent back from the server.
 
 //UPDATE
 app.put("/restaurants/:id", async (request, response) => {
@@ -101,6 +115,8 @@ app.put("/restaurants/:id", async (request, response) => {
 	);
 	response.send("Put resto");
 });
+
+// When a restaurant is update, it should be updated with a name and an image
 
 //DELETE
 app.delete("/restaurants/:id", async (request, response) => {

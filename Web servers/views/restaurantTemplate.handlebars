@@ -1,15 +1,19 @@
-<h1>My restaurant
+<h1>{{restaurant.name}} // Prints out the individual restaurant names
 </h1>
 <section>
     <!-- TODO - for each menu -->
+     {{#each restaurant.Menus}} // For each restaurant Menu
         <article>
-            <h2>My Menu</h2>
+            <h2>{{this.title}}</h2> // Print out each Menu name 
             <dl>
                     <!-- TODO - for each menu item -->
+                    {{#each this.MenuItems}} // For each Menu Item
                     <div>
-                        <dt>Item name</dt>
-                        <dd>Item price</dd>
+                        <dt>{{this.name}}</dt> // Print out the name of the menu item
+                        <dd>{{this.price}}</dd> // Print out the price of the menu item 
                     </div>
+                    {{/each}} // Always make sure to close the #each tag within the correct scope 
             </dl>
         </article>
+        {{/each}}
 </section>
