@@ -1,0 +1,14 @@
+<h2>Restaurant Update</h2>
+
+<form action="/restaurants/{{restaurantid}}" method="PUT">
+  <label for="restname">Restaurant name:</label><br>
+  <input type="text" id="name" name="name" value=""><br>
+  <label for="image">Restaurant image:</label><br>
+  <input type="url" id="image" name="image" value=""><br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+<p>If you click the "Submit" button, the form-data will be sent to a page called "/restaurants/edit".</p>
+
+{{!-- When clicking Submit, there's another endpoint that receives the form data.  --}}
+

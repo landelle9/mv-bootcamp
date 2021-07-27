@@ -16,6 +16,7 @@ const MenuItem = require("./Models/MenuItem");
 
 // connects and creates database
 const sequelizeConnect = require("./sequelize-connect");
+const { response } = require("express");
 
 const app = express(); // Creates an express application
 const port = 3000; // Our localhost:3000.
@@ -53,6 +54,18 @@ app.get("/flipcoin", (request, response) => {
 		response.send("tails");
 	}
 });
+
+app.get("/restaurants/create", async (request, response) => {
+	// response.send("Hello!");
+	response.render("newRestaurantTemplate");
+});
+
+app.get("/restaurants/:id/edit", async (request, response) => {
+	const restaurantid = request.params.id;
+	console.log("restaurant id is" + restaurantid);
+	response.render("editRestaurantTemplate", { restaurantid }); // The end point when you click the edit button - render means return back template as HTML
+});
+
 //READ - Gets all the restaurants
 app.get("/restaurants", async (request, response) => {
 	const restaurants = await Restaurant.findAll();
@@ -80,10 +93,10 @@ app.get("/restaurants/:id", async (request, response) => {
 		// response.send(restaurant);
 	}
 });
-
 // If there is no restaurant in the database, a 404 error will be sent back.
 
 //CREATE
+
 app.post("/restaurants", async (request, response) => {
 	console.log(request.body); // Similiar to sending a letter, and needing to include an envelope, letter etc.
 
@@ -91,14 +104,15 @@ app.post("/restaurants", async (request, response) => {
 		name: request.body.name,
 		image: request.body.image,
 	});
-	response.sendStatus(201);
-	response.send("Restaurant created");
+	//response.sendStatus(201);
+	response.redirect("/restaurants");
 });
 
 // If there is a restaurant created, a code of 200 and above will be sent back from the server.
 
 //UPDATE
 app.put("/restaurants/:id", async (request, response) => {
+	console.log("Hello Leah");
 	console.log(request.params.id);
 	console.log(request.body);
 
@@ -113,19 +127,19 @@ app.put("/restaurants/:id", async (request, response) => {
 			},
 		}
 	);
-	response.send("Put resto");
+	response.redirect("/restaurants");
 });
 
 // When a restaurant is update, it should be updated with a name and an image
 
 //DELETE
-app.delete("/restaurants/:id", async (request, response) => {
+app.get("/restaurants/:id/delete", async (request, response) => {
 	await Restaurant.destroy({
 		where: {
 			id: request.params.id,
 		},
 	});
-	response.send("Delete resto");
+	response.redirect("/restaurants"); // When the delete button is clicked, the page will refresh.
 });
 
 //READ
