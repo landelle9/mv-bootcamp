@@ -111,7 +111,7 @@ app.post("/restaurants", async (request, response) => {
 // If there is a restaurant created, a code of 200 and above will be sent back from the server.
 
 //UPDATE
-app.put("/restaurants/:id", async (request, response) => {
+app.post("/restaurants/:id", async (request, response) => {
 	console.log("Hello Leah");
 	console.log(request.params.id);
 	console.log(request.body);
