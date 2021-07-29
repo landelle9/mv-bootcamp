@@ -66,11 +66,16 @@ app.get("/restaurants/:id/edit", async (request, response) => {
 	response.render("editRestaurantTemplate", { restaurantid }); // The end point when you click the edit button - render means return back template as HTML
 });
 
+app.get("/restaurants/:id/menus/create", async (request, response) => {
+	const restaurantid = request.params.id;
+	console.log("Restaurant id is " + restaurantid);
+	response.render("newMenuTemplate", { restaurantid });
+});
 //READ - Gets all the restaurants
 app.get("/restaurants", async (request, response) => {
 	const restaurants = await Restaurant.findAll();
 	//response.send(restaurants);
-	console.log(restaurants);
+	//console.log(restaurants);
 	response.render("allRestaurantsTemplate", { restaurants });
 });
 
@@ -84,7 +89,7 @@ app.get("/restaurants/:id", async (request, response) => {
 			},
 		], // This ensures that when searching for restaurants, that menu is joined/associated with it.
 	});
-	console.log(restaurant);
+	//console.log(restaurant);
 
 	if (restaurant === null) {
 		response.sendStatus(404); // If there is no response, an error of 404 will be sent back.
@@ -112,7 +117,7 @@ app.post("/restaurants", async (request, response) => {
 
 //UPDATE
 app.post("/restaurants/:id", async (request, response) => {
-	console.log("Hello Leah");
+	//console.log("Hello Leah");
 	console.log(request.params.id);
 	console.log(request.body);
 
@@ -125,7 +130,8 @@ app.post("/restaurants/:id", async (request, response) => {
 			where: {
 				id: request.params.id,
 			},
-		}
+		} // Form data is request body
+		// Id is sent in URL so is sent as params
 	);
 	response.redirect("/restaurants");
 });
@@ -139,13 +145,13 @@ app.get("/restaurants/:id/delete", async (request, response) => {
 			id: request.params.id,
 		},
 	});
-	response.redirect("/restaurants"); // When the delete button is clicked, the page will refresh.
+	response.redirect("/restaurants"); // When the delete button is clicked, the page will refresh, and the restaurant deleted.
 });
 
 //READ
 app.get("/menus", async (request, response) => {
 	const menu = await Menu.findAll();
-	response.send(menu);
+	response.redirect("/restaurants");
 });
 
 app.get("/menus/:id", async (request, response) => {
@@ -163,19 +169,20 @@ app.get("/menus/:id", async (request, response) => {
 	}
 });
 //CREATE
-app.post("/menus", async (request, response) => {
-	console.log(request.body); // Similiar to sending a letter, and needing to include an envelope, letter etc.
+app.post("/menus/:id", async (request, response) => {
+	console.log("Menu restaurant id is" + request.params.id); // Similiar to sending a letter, and needing to include an envelope, letter etc.
 
 	await Menu.create({
-		RestaurantId: request.body.restaurantid,
-		name: request.body.name,
-		image: request.body.image,
+		RestaurantId: request.params.id, // Params is requested due to the ID being requested in the URL
+		title: request.body.title, // body is requested because the form gets rendered & sent back
 	});
-	response.sendStatus(201);
-	response.send("Menu created");
+	//response.sendStatus(201);
+	response.redirect("/menus"); // Redirects back to the Menu page
+	//response.send("Menu created");
 });
 //UPDATE
-app.put("/menus/:id", async (request, response) => {
+app.post("/menus/:id", async (request, response) => {
+	//console.log("Hello Leah");
 	console.log(request.params.id);
 	console.log(request.body);
 
@@ -190,7 +197,7 @@ app.put("/menus/:id", async (request, response) => {
 			},
 		}
 	);
-	response.send("Put Menu");
+	response.redirect("/menus");
 });
 
 //DELETE
