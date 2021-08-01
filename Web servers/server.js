@@ -71,6 +71,12 @@ app.get("/restaurants/:id/menus/create", async (request, response) => {
 	console.log("Restaurant id is " + restaurantid);
 	response.render("newMenuTemplate", { restaurantid });
 });
+app.get("/menus/:id/menuitems/create", async (request, response) => {
+	const menuid = request.params.id;
+	console.log("Menu id is " + menuid);
+	response.render("newMenuItemTemplate", { menuid });
+});
+
 //READ - Gets all the restaurants
 app.get("/restaurants", async (request, response) => {
 	const restaurants = await Restaurant.findAll();
@@ -232,16 +238,18 @@ app.get("/menuitems/:id", async (request, response) => {
 	}
 });
 //CREATE
-app.post("/menuitems", async (request, response) => {
+app.post("/menus/:id/menuitems", async (request, response) => {
 	console.log(request.body); // Similiar to sending a letter, and needing to include an envelope, letter etc.
 
 	await MenuItem.create({
-		MenuId: request.body.menuid,
+		MenuId: request.params.id,
 		name: request.body.name,
 		price: request.body.price,
 	});
-	response.sendStatus(201);
-	response.send("Menu item created");
+	const menuid = request.params.id;
+	response.redirect("/menus");
+	//response.sendStatus(201);
+	//response.send("Menu item created");
 });
 
 //UPDATE

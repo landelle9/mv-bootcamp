@@ -1,6 +1,7 @@
 <h1>{{restaurant.name}}
     {{!-- // Prints out the individual restaurant names --}}
     <a href="/restaurants/{{restaurant.id}}/menus/create">Add New Menu</a>
+    
 </h1>
 <section>
     <!-- TODO - for each menu -->
@@ -11,6 +12,7 @@
             {{!-- // Print out each Menu name  --}}
             <dl>
                     <!-- TODO - for each menu item -->
+                    <a href="/menus/{{this.id}}/menuitems/create">Add New Menu Item</a>
                     {{#each this.MenuItems}} 
                     {{!-- // For each Menu Item --}}
                     <div>
